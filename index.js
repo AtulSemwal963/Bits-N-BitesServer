@@ -1,9 +1,13 @@
+// https://odd-gray-skunk-kit.cyclic.app/
+
 const express = require('express');
 const { MongoClient } = require('mongodb');
+const cors = require('cors');
 
 const app = express();
 const uri = 'mongodb+srv://admin:admin@cluster0.gqk6mzn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
