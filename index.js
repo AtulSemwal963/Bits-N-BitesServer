@@ -2,11 +2,14 @@
 
 const express = require('express');
 const { MongoClient } = require('mongodb');
+const nodemailer= require('nodemailer')
+const PDFDocument= require('pdfkit')
 const cors = require('cors');
-
+const fs = require('fs');
+const bodyParser = require('body-parser');
 
 const app = express();
-const uri = 'mongodb+srv://admin:admin@cluster0.gqk6mzn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const uri = 'mongodb+srv://user:1234@cluster0.fz8cxrx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 app.use(cors());
 app.use(express.json());
@@ -254,8 +257,113 @@ const start = async () => {
               res.status(500).json({ message: 'Internal server error' });
             }
           });
-      
-          // Other routes...
+          app.post('/send-email', async (req, res) => {
+            try {
+              // Extract user email from request body
+              const { userEmail } = req.body;
+          
+              // Create a Nodemailer transporter object using SMTP transport
+              const transporter = nodemailer.createTransport({
+                service: 'gmail', // Example: Gmail, SMTP service you want to use
+                auth: {
+                  user: 'bitsnbiteschitkarauniversity@gmail.com', // Your email address
+                  pass: 'helt gscf ryqh tvyt' // Your email password or an app password
+                }
+              });
+          
+              // Email message options
+              const mailOptions = {
+                from: 'bitsnbiteschitkarauniversity@gmail.com', // Sender email address
+                to: userEmail, // Recipient email address
+                subject: 'Subject of the Email', // Subject line
+                text: 'This is the body of the email.' // Plain text body
+              };
+          
+              // Send mail with defined transport object
+              await transporter.sendMail(mailOptions);
+          
+              // Response if email sent successfully
+              res.status(200).json({ message: 'Email sent successfully' });
+            } catch (error) {
+              // Response if there's an error sending the email
+              console.error('Error sending email:', error);
+              res.status(500).json({ error: 'Failed to send email' });
+            }
+          });
+          app.post('/send-order-summary', async (req, res) => {
+            try {
+              // Extract user email and order details from request body
+              const { userEmail, order } = req.body;
+          
+              // Create a PDF document
+              const doc = new PDFDocument();
+              
+              doc.image('icon.png',250,51,{width: 120, height: 120});
+              doc.image('qrCode.png',400,doc.page.height-250,{width: 180, height: 180});
+              doc.moveDown(8);
+              
+              doc.pipe(fs.createWriteStream('order_summary.pdf')); // Pipe PDF output to a file
+              
+              // Add order summary to the PDF
+              doc.fontSize(30).font('Times-Roman').text('Order Summary', { align: 'center' }).moveDown(2);
+              doc.lineCap('butt').lineWidth(4).dash(5)
+              .moveTo((doc.page.width/2)+220, 230)
+              .lineTo(70, 230)
+              .fillAndStroke("#BF1A2F", "#BF1A2F");
+
+              doc.lineCap('round').lineWidth(50)
+   .moveTo(0, 0)
+   .lineTo(doc.page.width, 0)
+   .fillAndStroke("#BF1A2F", "#BF1A2F");
+   doc.lineCap('round').lineWidth(50)
+              .moveTo(0, doc.page.height-20)
+              .lineTo(doc.page.width, doc.page.height-20)
+              .fillAndStroke("#BF1A2F", "#BF1A2F");
+
+              order.items.forEach(item => {
+                doc.fontSize(18).fillColor('black').text(`${item.qty} x ${item.item}`);
+              });
+                         
+              // End the PDF document
+              doc.end();
+          
+              // Create a Nodemailer transporter object using SMTP transport
+              const transporter = nodemailer.createTransport({
+                service: 'Gmail', // Example: Gmail, SMTP service you want to use
+                auth: {
+                  user: 'bitsnbiteschitkarauniversity@gmail.com', // Your email address
+                  pass: 'helt gscf ryqh tvyt' // Your email password or an app password
+                }
+              });
+          
+              // Construct the email message
+              const mailOptions = {
+                from: 'your-email@gmail.com', // Sender email address
+                to: userEmail, // Recipient email address
+                subject: 'Order Summary', // Subject line
+                html: '<p>Thank you for your order!</p><p>Please find attached the order summary.</p><image src="icon.png" height="50px" width="50px"/>', // HTML body
+                attachments: [
+                  {
+                    filename: 'order_summary.pdf', // Filename for the attachment
+                    path: 'order_summary.pdf' // Path to the PDF file
+                  }
+                ]
+              };
+          
+              // Send mail with defined transport object
+              await transporter.sendMail(mailOptions);
+          
+              // Delete the PDF file after sending the email
+              fs.unlinkSync('order_summary.pdf');
+          
+              // Response if email sent successfully
+              res.status(200).json({ message: 'Email sent successfully' });
+            } catch (error) {
+              // Response if there's an error sending the email
+              console.error('Error sending email:', error);
+              res.status(500).json({ error: 'Failed to send email' });
+            }
+          })
       
         } catch (err) {
           console.log(err.message);
