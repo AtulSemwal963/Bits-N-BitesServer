@@ -337,14 +337,16 @@ const start = async () => {
               });
           
               // Construct the email message
+                const name = email.substring(0, email.indexOf(".")).toLowerCase();
+                 const ID = name.charAt(0).toUpperCase() + name.slice(1);
               const mailOptions = {
                 from: 'your-email@gmail.com', // Sender email address
                 to: userEmail, // Recipient email address
-                subject: 'Order Summary', // Subject line
-                html: '<p>Thank you for your order!</p><p>Please find attached the order summary.</p><image src="icon.png" height="50px" width="50px"/>', // HTML body
+                subject: ID+":Order Summary", // Subject line
+                html: '<p>Thank you for your order!</p><p>Please find attached the order summary.</p><p>Open the file attached below and verify the QR code with the store keeper.</p>, // HTML body
                 attachments: [
                   {
-                    filename: 'order_summary.pdf', // Filename for the attachment
+                    filename: ID'_'+Date.now()'_order_summary.pdf', // Filename for the attachment
                     path: 'order_summary.pdf' // Path to the PDF file
                   }
                 ]
