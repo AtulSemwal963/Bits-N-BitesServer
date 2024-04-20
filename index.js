@@ -1,5 +1,3 @@
-//https://dizzy-tick-capris.cyclic.app
-
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const nodemailer= require('nodemailer')
@@ -343,10 +341,10 @@ const start = async () => {
                 from: 'your-email@gmail.com', // Sender email address
                 to: userEmail, // Recipient email address
                 subject: ID+":Order Summary", // Subject line
-                html: '<p>Thank you for your order!</p><p>Please find attached the order summary.</p><p>Open the file attached below and verify the QR code with the store keeper.</p>, // HTML body
+                html: '<p>Thank you for your order!</p><p>Please find attached the order summary.</p><p>Open the file attached below and verify the QR code with the store keeper.</p>',
                 attachments: [
                   {
-                    filename: ID'_'+Date.now()'_order_summary.pdf', // Filename for the attachment
+                    filename: ID+'_'+Date.now()+'_order_summary.pdf', // Filename for the attachment
                     path: 'order_summary.pdf' // Path to the PDF file
                   }
                 ]
