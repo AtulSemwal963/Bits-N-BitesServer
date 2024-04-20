@@ -335,7 +335,7 @@ const start = async () => {
               });
           
               // Construct the email message
-                const name = email.substring(0, email.indexOf(".")).toLowerCase();
+                const name = userEmail.substring(0, userEmail.indexOf(".")).toLowerCase();
                  const ID = name.charAt(0).toUpperCase() + name.slice(1);
               const mailOptions = {
                 from: 'your-email@gmail.com', // Sender email address
