@@ -15,6 +15,37 @@ app.use(express.urlencoded({ extended: true }));
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
  client.connect();
 
+async function startServer() {
+    try {
+        // Connect to the MongoDB client
+        await client.connect();
+        console.log("Connected successfully to MongoDB");
+
+        // Confirm the server is listening for requests
+       
+
+        // Define API endpoints
+        app.get('/', (req, res) => {
+            res.send("Server is running");
+        });
+
+        // Additional endpoints...
+
+        // Place additional routes here
+
+        // Don't forget to handle database disconnection on process termination
+        process.on('SIGINT', async () => {
+            await client.close();
+            process.exit();
+        });
+
+    } catch (error) {
+        console.error('Unable to connect to database:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
 
 const start = async () => {
     try {
