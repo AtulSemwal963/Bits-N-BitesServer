@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
- client.connect();
+ 
 
 async function startServer() {
     try {
