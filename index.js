@@ -51,7 +51,7 @@ async function startServer() {
                       const coll = client.db('Bits-N-Bites').collection('MessMenu');
                       const filter = {};
                       const result = await coll.find(filter).toArray();
-                      await client.close();
+                      ;
                       res.send(result);
                   } catch (err) {
                       console.log(err.message);
@@ -64,7 +64,7 @@ async function startServer() {
                       const coll = client.db('Bits-N-Bites').collection('RestoUMenu');
                       const filter = {};
                       const result = await coll.find(filter).toArray();
-                      await client.close();
+                      ;
                       res.send(result);
                   } catch (err) {
                       console.log(err.message);
@@ -77,7 +77,7 @@ async function startServer() {
                       const coll = client.db('Bits-N-Bites').collection('TuckShopMenu');
                       const filter = {};
                       const result = await coll.find(filter).toArray();
-                      await client.close();
+                      ;
                       res.send(result);
                   } catch (err) {
                       console.log(err.message);
@@ -368,7 +368,7 @@ async function startServer() {
       start();
       
         process.on('SIGINT', async () => {
-            await client.close();
+            ;
             process.exit();
         });
 
