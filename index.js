@@ -12,7 +12,8 @@ const uri = 'mongodb+srv://user:1234@cluster0.fz8cxrx.mongodb.net/?retryWrites=t
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+ client.connect();
 
 
 const start = async () => {
@@ -32,8 +33,6 @@ const start = async () => {
 
         app.get('/messmenu', async (req, res) => {
             try {
-                const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-                await client.connect();
                 const coll = client.db('Bits-N-Bites').collection('MessMenu');
                 const filter = {};
                 const result = await coll.find(filter).toArray();
@@ -47,8 +46,6 @@ const start = async () => {
 
         app.get('/restoumenu', async (req, res) => {
             try {
-                const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-                await client.connect();
                 const coll = client.db('Bits-N-Bites').collection('RestoUMenu');
                 const filter = {};
                 const result = await coll.find(filter).toArray();
@@ -62,8 +59,6 @@ const start = async () => {
 
         app.get('/tuckshopmenu', async (req, res) => {
             try {
-                const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-                await client.connect();
                 const coll = client.db('Bits-N-Bites').collection('TuckShopMenu');
                 const filter = {};
                 const result = await coll.find(filter).toArray();
@@ -77,8 +72,6 @@ const start = async () => {
         app.post('/placeOrderRestoU', async (req, res) => {
           try {
             // Connect to the MongoDB database
-            const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-            await client.connect();
             const db = client.db("Bits-N-Bites"); // Replace "Bits-N-Bites" with your database name
             const collection = db.collection("RestoUMenu"); // Replace "RestoUMenu" with your collection name
         
@@ -93,14 +86,14 @@ const start = async () => {
               const doc = await collection.findOne(filter);
         
               if (!doc) {
-                throw new Error(`Item "${itemName}" not found in category "${category}"`);
+                res.send(`Item "${itemName}" not found in category "${category}"`);
               }
         
               const existingItem = doc[category].find(i => i.item === itemName);
               const newQuantity = existingItem.qty - item.qty;
         
               if (newQuantity < 0) {
-                throw new Error(`Insufficient stock for item "${itemName}"`);
+                res.status(500).send(`Insufficient stock for item "${itemName}"`);
               }
         
               // Update the document with the reduced quantity
@@ -111,16 +104,11 @@ const start = async () => {
           } catch (error) {
             console.error(error);
             res.status(500).send('Error placing order');
-          } finally {
-            // Close the MongoDB connection (optional, connection pool might handle it)
-            await client.close();
-          }
+          } 
         });
         app.post('/placeOrderTuckShop', async (req, res) => {
           try {
             // Connect to the MongoDB database
-            const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-            await client.connect();
             const db = client.db("Bits-N-Bites"); // Replace "Bits-N-Bites" with your database name
             const collection = db.collection("TuckShopMenu"); // Replace "RestoUMenu" with your collection name
         
@@ -135,14 +123,14 @@ const start = async () => {
               const doc = await collection.findOne(filter);
         
               if (!doc) {
-                throw new Error(`Item "${itemName}" not found in category "${category}"`);
+                res.status(500).send(`Item "${itemName}" not found in category "${category}"`);
               }
         
               const existingItem = doc[category].find(i => i.item === itemName);
               const newQuantity = existingItem.qty - item.qty;
         
               if (newQuantity < 0) {
-                throw new Error(`Insufficient stock for item "${itemName}"`);
+                res.status(500).send(`Insufficient stock for item "${itemName}"`);
               }
         
               // Update the document with the reduced quantity
@@ -153,16 +141,11 @@ const start = async () => {
           } catch (error) {
             console.error(error);
             res.status(500).send('Error placing order');
-          } finally {
-            // Close the MongoDB connection (optional, connection pool might handle it)
-            await client.close();
-          }
+          } 
         });
 
           app.post('/accounts', async (req, res) => {
             try {
-              const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-              await client.connect();
               const coll = client.db('Bits-N-Bites').collection('Accounts');
       
               // Extract umail and password from request body
@@ -170,7 +153,7 @@ const start = async () => {
       
               // Check if umail contains the correct university mail domain
               if (!umail.includes('@chitkarauniversity.edu.in')) {
-                return res.status(203).json({ message: 'Invalid university mail' });
+                return res.status(500).send({ message: 'Invalid university mail' });
               }
       
               // Find the existing account
@@ -183,7 +166,7 @@ const start = async () => {
                   res.status(200).json({ message: 'User logged in successfully' });
                 } else {
                   // If password doesn't match, send error message
-                  res.status(202).json({ message: 'Incorrect password' });
+                  res.status(500).send({ message: 'Incorrect password' });
                 }
               } else {
                 // If account doesn't exist, create new document with umail and password
@@ -192,7 +175,7 @@ const start = async () => {
                 await coll.insertOne({ umail, password, balance, loggedIn });
       
                 // Send success message
-                res.status(201).json({ message: 'Account created successfully' });
+                res.status(200).json({ message: 'Account created successfully' });
       
                 // Send email to the user
                
@@ -207,8 +190,6 @@ const start = async () => {
           });
           app.post('/addbalance', async (req, res) => {
             try {
-              const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-              await client.connect();
               const coll = client.db('Bits-N-Bites').collection('Accounts');
           
               // Extract umail and balance from request body
@@ -234,8 +215,6 @@ const start = async () => {
           });
           app.post('/balance', async (req, res) => {
             try {
-              const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-              await client.connect();
               const coll = client.db('Bits-N-Bites').collection('Accounts');
               
               // Extract umail from request body
@@ -335,7 +314,7 @@ const start = async () => {
               });
           
               // Construct the email message
-                const name = userEmail.substring(0, userEmail.indexOf(".")).toLowerCase();
+                const name =  userEmail.substring(0,  userEmail.indexOf(".")).toLowerCase();
                  const ID = name.charAt(0).toUpperCase() + name.slice(1);
               const mailOptions = {
                 from: 'your-email@gmail.com', // Sender email address
